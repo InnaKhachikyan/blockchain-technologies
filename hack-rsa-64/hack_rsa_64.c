@@ -24,7 +24,7 @@ unsigned char *hex_to_bytes(const char *hex, size_t *outlen) {
 
 // the final result (the inverse) will be stored in bezout_coef var, 
 // it might be negative, bring it to mod phi
-void extended_euclid(uint64_t *phi, uint64_t *e, int64_t *bezout_coef, int64_t *other_coef) {
+void extended_euclid(uint64_t *phi, uint64_t *e, __int128 *bezout_coef, __int128 *other_coef) {
     if (*phi == 0) {
         *bezout_coef = 1;  
         *other_coef  = 0; 
@@ -36,7 +36,7 @@ void extended_euclid(uint64_t *phi, uint64_t *e, int64_t *bezout_coef, int64_t *
 
     extended_euclid(&sub_phi, &sub_e, bezout_coef, other_coef);
 
-    int64_t tmp = *bezout_coef - (int64_t)(*e / *phi) * (*other_coef);
+    __int128 tmp = *bezout_coef - (__int128)(*e / *phi) * (*other_coef);
 
     *bezout_coef = *other_coef; 
     *other_coef  = tmp;        
@@ -100,13 +100,13 @@ uint8_t* hack_rsa(uint64_t n, uint64_t e, unsigned char *ciphertext, size_t clen
     }                                                      
 
     uint64_t phi_n = (p - 1) * (q - 1);
-    int64_t d, other_coef;
+    __int128 d, other_coef;
     extended_euclid(&phi_n, &e, &d, &other_coef);
 
     //  signed modulus
-    d %= (int64_t)phi_n;     
+    d %= (__int128)phi_n;     
     if (d < 0) {
-        d += (int64_t)phi_n; 
+        d += (__int128)phi_n; 
     }
 
     uint8_t *pt = decrypt_rsa(n, (uint64_t)d, ciphertext, clen); 
