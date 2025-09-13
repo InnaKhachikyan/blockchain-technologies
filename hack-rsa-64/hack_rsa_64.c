@@ -85,7 +85,8 @@ uint8_t* hack_rsa(uint64_t n, uint64_t e, unsigned char *ciphertext, size_t clen
     if (n % 2 == 0) {
         p = 2;
         q = n / 2;
-    } else {
+    } 
+    else {
         for (uint64_t i = 3; i <= root_n; i += 2) {            
             if (n % i == 0) {
                 p = i;
@@ -145,7 +146,7 @@ int main(void) {
         printf("%02x", cipher[i]);
     }
     printf("\n");
-    
+
     uint8_t *plaintext = hack_rsa(n, e, cipher, clen);
     if (!plaintext) {                                      
         free(cipher);
@@ -155,13 +156,14 @@ int main(void) {
     printf("plaintext (%zu bytes): ", clen);              
     for (size_t i = 0; i < clen; i++) printf("%02x", plaintext[i]); 
     printf("\n");                                               
-
-    int msg_len = 5;
     printf("plaintext as chars: ");
-	for (size_t i = clen - msg_len; i < clen; i++) {
-    		printf("%c", plaintext[i]);
-	}
-	printf("\n");
+    size_t start = 0;
+    while (start < clen && plaintext[start] == 0) start++;
+    for (size_t i = start; i < clen; i++) {
+        printf("%c", plaintext[i]);
+    }
+    printf("\n");
+
 
     free(plaintext);                                          
 

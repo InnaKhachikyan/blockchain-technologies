@@ -23,7 +23,7 @@ static char *mp_to_hexstr(const mp_int *x) {
     if (!hexstr) { free(buf); return NULL; }
 
     for (size_t i = 0; i < written; ++i)
-        sprintf(hexstr + (i * 2), "%02x", buf[i]);
+    sprintf(hexstr + (i * 2), "%02x", buf[i]);
     hexstr[written * 2] = '\0';
 
     free(buf);
@@ -51,13 +51,26 @@ int main(void) {
         fprintf(stderr, "rsa_make_key: %s\n", error_to_string(err));
         return 1;
     }
+    char input[16];
+    printf("Enter plaintext (max 7 chars): ");
+    if (!fgets(input, sizeof(input), stdin)) {
+        fprintf(stderr, "failed to read input\n");
+        rsa_free(&key);
+        return 1;
+    }
+    input[strcspn(input, "\r\n")] = '\0';
+    size_t msglen = strlen(input);
+    if (msglen == 0 || msglen > 7) {
+        fprintf(stderr, "invalid length (1..7)\n");
+        rsa_free(&key);
+        return 1;
+    }
+    const unsigned char *msg = (const unsigned char*)input;
 
-    const unsigned char msg[] = "KEY42";
     unsigned char ct[16];
     unsigned long ctlen = sizeof(ct);
 
-    err = rsa_exptmod(msg, (unsigned long)strlen((const char*)msg),
-                      ct, &ctlen, PK_PUBLIC, &key);
+    err = rsa_exptmod(msg, (unsigned long)msglen, ct, &ctlen, PK_PUBLIC, &key);
     if (err != CRYPT_OK) {
         fprintf(stderr, "rsa_exptmod(PK_PUBLIC): %s\n", error_to_string(err));
         rsa_free(&key);
